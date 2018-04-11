@@ -1,0 +1,61 @@
+pipeline:
+  sftp_cache_restore:
+    image: appleboy/drone-sftp-cache
+    server: rancher.seattleslow.com
+    port: 22
+    username: rancher
+    secrets: [ sftp_cache_private_key ]
+    path: /home/rancher/drone
+    restore: true
+    mount: [tmp, dl, files]
+    when:
+      local: false
+      event: [ push, tag ]
+
+  cook_ubnt-m-xw:
+    image: josmo/nyc-mesh-cooker
+    commands:
+      - ./cooker -c ar71xx/generic --profile=ubnt-nano-m-xw --flavor=lime_default --community=nycmesh.net/common-qmp-compat
+
+  cook_ubnt-m-xm:
+    image: josmo/nyc-mesh-cooker
+    commands:
+      - ./cooker -c ar71xx/generic --profile=ubnt-nano-m --flavor=lime_default --community=nycmesh.net/common-qmp-compat
+
+  cook_tl-wr842n-v1:
+    image: josmo/nyc-mesh-cooker
+    commands:
+      - ./cooker -c ar71xx/generic --profile=tl-wr842n-v1 --flavor=lime_default --community=nycmesh.net/common-qmp-compat
+
+  tar_artifacts:
+    image: josmo/nyc-mesh-cooker
+      - tar -cvzf ubnt-nano-m-xw.tar.gz -C output/ar71xx/generic/ubnt-nano-m-xw/ . --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin'
+      - tar -cvzf ubnt-nano-m-xm.tar.gz -C output/ar71xx/generic/ubnt-nano-m/ . --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin'
+      - tar -cvzf tl-wr842n-v1.tar.gz -C output/ar71xx/generic/tl-wr842n-v1/ . --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin'
+    when:
+      event: tag
+
+  publish_images:
+    image: plugins/github-release
+    secrets: [ github_token ]
+    files: ./*.tar.gz
+    checksum:
+      - md5
+      - sha1
+      - sha256
+    draft: true
+    when:
+      event: tag
+
+  sftp_cache_build:
+    image: appleboy/drone-sftp-cache
+    server: rancher.seattleslow.com
+    port: 22
+    username: rancher
+    secrets: [ sftp_cache_private_key ]
+    path: /home/rancher/drone
+    rebuild: true
+    mount: [tmp, dl, files]
+    when:
+      local: false
+      event: [ push, tag ]
