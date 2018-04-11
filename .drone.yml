@@ -14,24 +14,30 @@ pipeline:
 
   cook_ubnt-m-xw:
     image: josmo/nyc-mesh-cooker
+    environment:
+      - J=6
     commands:
       - ./cooker -c ar71xx/generic --profile=ubnt-nano-m-xw --flavor=lime_default --community=nycmesh.net/common-qmp-compat
 
   cook_ubnt-m-xm:
     image: josmo/nyc-mesh-cooker
+    environment:
+      - J=6
     commands:
       - ./cooker -c ar71xx/generic --profile=ubnt-nano-m --flavor=lime_default --community=nycmesh.net/common-qmp-compat
 
   cook_tl-wr842n-v1:
     image: josmo/nyc-mesh-cooker
+    environment:
+      - J=6
     commands:
       - ./cooker -c ar71xx/generic --profile=tl-wr842n-v1 --flavor=lime_default --community=nycmesh.net/common-qmp-compat
 
   tar_artifacts:
     image: josmo/nyc-mesh-cooker
-      - tar -cvzf ubnt-nano-m-xw.tar.gz -C output/ar71xx/generic/ubnt-nano-m-xw/ . --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin'
-      - tar -cvzf ubnt-nano-m-xm.tar.gz -C output/ar71xx/generic/ubnt-nano-m/ . --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin'
-      - tar -cvzf tl-wr842n-v1.tar.gz -C output/ar71xx/generic/tl-wr842n-v1/ . --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin'
+      - tar -cvzf ubnt-nano-m-xw-$DRONE_TAG.tar.gz -C output/ar71xx/generic/ubnt-nano-m-xw/ . --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin'
+      - tar -cvzf ubnt-nano-m-xm-$DRONE_TAG.tar.gz -C output/ar71xx/generic/ubnt-nano-m/ . --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin'
+      - tar -cvzf tl-wr842n-v1-$DRONE_TAG.tar.gz -C output/ar71xx/generic/tl-wr842n-v1/ . --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin'
     when:
       event: tag
 
