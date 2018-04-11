@@ -35,6 +35,7 @@ pipeline:
 
   tar_artifacts:
     image: josmo/nyc-mesh-cooker
+    commands:
       - tar -cvzf ubnt-nano-m-xw-$DRONE_TAG.tar.gz -C output/ar71xx/generic/ubnt-nano-m-xw/ . --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin'
       - tar -cvzf ubnt-nano-m-xm-$DRONE_TAG.tar.gz -C output/ar71xx/generic/ubnt-nano-m/ . --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin'
       - tar -cvzf tl-wr842n-v1-$DRONE_TAG.tar.gz -C output/ar71xx/generic/tl-wr842n-v1/ . --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin'
