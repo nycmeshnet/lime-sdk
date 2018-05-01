@@ -26,6 +26,13 @@ pipeline:
     commands:
       - ./cooker -c ar71xx/generic --profile=ubnt-nano-m --flavor=lime_default --community=nycmesh.net/common-qmp-compat
 
+  cook_dir-869:
+    image: josmo/nyc-mesh-cooker
+    environment:
+      - J=6
+    commands:
+      - ./cooker -c ar71xx/generic --profile=dir-869-a1 --flavor=lime_default --community=nycmesh.net/common-qmp-compat
+
   cook_tl-wr842n-v1:
     image: josmo/nyc-mesh-cooker
     environment:
@@ -39,6 +46,7 @@ pipeline:
       - tar --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin' -cvzf ubnt-nano-m-xw-$DRONE_TAG.tar.gz -C output/ar71xx/generic/ubnt-nano-m-xw/lime_default . 
       - tar --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin' -cvzf ubnt-nano-m-xm-$DRONE_TAG.tar.gz -C output/ar71xx/generic/ubnt-nano-m/lime_default . 
       - tar --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin' -cvzf tl-wr842n-v1-$DRONE_TAG.tar.gz -C output/ar71xx/generic/tl-wr842n-v1/lime_default . 
+      - tar --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin' -cvzf dir-869-a1-$DRONE_TAG.tar.gz -C output/ar71xx/generic/dir-869-a1/lime_default .
     when:
       event: tag
 
