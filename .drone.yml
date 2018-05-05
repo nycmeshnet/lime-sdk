@@ -33,6 +33,13 @@ pipeline:
     commands:
       - ./cooker -c ar71xx/generic --profile=dir-869-a1 --flavor=lime_default --community=nycmesh.net/common-qmp-compat
 
+  cook_x86:
+    image: josmo/nyc-mesh-cooker
+    environment:
+      - J=6
+    commands:
+      - ./cooker -c x86/generic --profile=Generic --flavor=lime_default --community=nycmesh.net/common-qmp-compat
+
 #  cook_tl-wr842n-v1:
 #    image: josmo/nyc-mesh-cooker
 #    environment:
