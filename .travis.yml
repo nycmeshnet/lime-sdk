@@ -1,0 +1,11 @@
+sudo: required
+
+services:
+  - docker
+  
+before_install:
+- curl -L https://github.com/drone/drone-cli/releases/download/v0.8.5/drone_linux_amd64.tar.gz | tar zx
+- sudo install -t /usr/local/bin drone
+
+script:
+- drone exec
