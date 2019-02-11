@@ -1,76 +1,60 @@
-pipeline:
-  sftp_cache_restore:
-    image: appleboy/drone-sftp-cache
-    server: rancher.seattleslow.com
-    port: 22
-    username: rancher
-    secrets: [ sftp_cache_private_key ]
-    path: /home/rancher/drone
-    restore: true
-    mount: [tmp, dl, files]
-    when:
-      local: false
-      event: [ push, tag ]
+---
+kind: pipeline
+name: default
 
-  cook_ubnt-m-xw:
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+  - name: cook_ubnt-m-xw
+    pull: default
     image: josmo/nyc-mesh-cooker
-    environment:
-      - J=6
     commands:
       - ./cooker -c ar71xx/generic --profile=ubnt-nano-m-xw --flavor=lime_default --community=nycmesh.net/common-qmp-compat
-
-  cook_ubnt-m-xm:
-    image: josmo/nyc-mesh-cooker
     environment:
-      - J=6
+      J: 6
+
+  - name: cook_ubnt-m-xm
+    pull: default
+    image: josmo/nyc-mesh-cooker
     commands:
       - ./cooker -c ar71xx/generic --profile=ubnt-nano-m --flavor=lime_default --community=nycmesh.net/common-qmp-compat
-
-  cook_dir-869:
-    image: josmo/nyc-mesh-cooker
     environment:
-      - J=6
+      J: 6
+
+  - name: cook_dir-869
+    pull: default
+    image: josmo/nyc-mesh-cooker
     commands:
       - ./cooker -c ar71xx/generic --profile=dir-869-a1 --flavor=lime_default --community=nycmesh.net/common-qmp-compat
+    environment:
+      J: 6
 
-#  cook_tl-wr842n-v1:
-#    image: josmo/nyc-mesh-cooker
-#    environment:
-#      - J=6
-#    commands:
-#      - ./cooker -c ar71xx/generic --profile=tl-wr842n-v1 --flavor=lime_default --community=nycmesh.net/common-qmp-compat
-
-  tar_artifacts:
+  - name: tar_artifacts
+    pull: default
     image: josmo/nyc-mesh-cooker
     commands:
-      - tar --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin' -cvzf ubnt-nano-m-xw-$DRONE_TAG.tar.gz -C output/ar71xx/generic/ubnt-nano-m-xw/lime_default . 
-      - tar --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin' -cvzf ubnt-nano-m-xm-$DRONE_TAG.tar.gz -C output/ar71xx/generic/ubnt-nano-m/lime_default . 
-#      - tar --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin' -cvzf tl-wr842n-v1-$DRONE_TAG.tar.gz -C output/ar71xx/generic/tl-wr842n-v1/lime_default . 
-      - tar --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin' -cvzf dir-869-a1-$DRONE_TAG.tar.gz -C output/ar71xx/generic/dir-869-a1/lime_default .
+      - "tar --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin' -cvzf ubnt-nano-m-xw-$DRONE_TAG.tar.gz -C output/ar71xx/generic/ubnt-nano-m-xw/lime_default ."
+      - "tar --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin' -cvzf ubnt-nano-m-xm-$DRONE_TAG.tar.gz -C output/ar71xx/generic/ubnt-nano-m/lime_default ."
+      - "tar --exclude='*vmlinux*' --exclude='*manifest' --exclude='*squashfs' --exclude='*lzma.bin' -cvzf dir-869-a1-$DRONE_TAG.tar.gz -C output/ar71xx/generic/dir-869-a1/lime_default ."
     when:
-      event: tag
+      event:
+        - tag
 
-  publish_images:
+  - name: publish_images
+    pull: default
     image: plugins/github-release
-    secrets: [ github_token ]
-    files: ./*.tar.gz
-    checksum:
-      - md5
-      - sha1
-      - sha256
-    draft: true
+    settings:
+      api_key:
+        from_secret: github_token
+      checksum:
+        - md5
+        - sha1
+        - sha256
+      draft: true
+      files: "./*.tar.gz"
     when:
-      event: tag
+      event:
+        - tag
 
-  sftp_cache_build:
-    image: appleboy/drone-sftp-cache
-    server: rancher.seattleslow.com
-    port: 22
-    username: rancher
-    secrets: [ sftp_cache_private_key ]
-    path: /home/rancher/drone
-    rebuild: true
-    mount: [tmp, dl, files]
-    when:
-      local: false
-      event: [ push, tag ]
